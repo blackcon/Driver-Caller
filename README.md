@@ -90,6 +90,8 @@
     ```
   
 4. Demo
-  - Call fucntion: AhcCdbRefresh()
+  - `Sucess Case` - AhcCdbRefresh()
     - ![AhcCdbRefresh](https://github.com/blackcon/Driver-Caller/blob/main/images/4.%20call%20func%20AhcCdbRefresh.png?raw=true)
+  - `Fail Case` - ApiLoopupAndWriteToProcess() // Maybe I missed some data in dataset
+    - ![ApiLoopupAndWriteToProcess](https://github.com/blackcon/Driver-Caller/blob/main/images/5.%20call%20func%20AhcApiLoopupAndWriteToProcess.png?raw=true)
   
