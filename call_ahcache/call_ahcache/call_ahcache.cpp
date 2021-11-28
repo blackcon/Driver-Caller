@@ -98,9 +98,9 @@ struct ApphelpCacheControlData
 	PVOID unk46;
 };
 
-// Âü°í: 
+// ì°¸ê³ : 
 //  Windows: Elevation of Privilege in ahcache.sys/NtApphelpCacheControl
-//  (https://bugs.chromium.org/p/project-zero/issues/detail?id=118&redir=1)¿¡¼­ Á¦°øµÈ poc.zip
+//  (https://bugs.chromium.org/p/project-zero/issues/detail?id=118&redir=1)ì—ì„œ ì œê³µëœ poc.zip
 struct APPHELP_QUERY
 {
 	int match_tags[16];
@@ -144,105 +144,6 @@ HANDLE CreateProcessHandle()
 
 NTSTATUS _DeviceIoControlFile(HANDLE hProc)
 {
-	/*
-	// case 1) use in AhcApiLookup()
-	data.unk0 = (void *)0x61616161;
-	data.unk1 = malloc(0x20);	// some struct{ QWORD base_addr;	unsigned __int16 offset; }
-	memset(data.unk1, 0x30, 0x20);
-	data.unk2 = (void *)strlen((char *)data.unk1);
-	data.unk3 = (void *)0x64646464;	// file_handler; ex)craetefile(data.unk1);
-
-	// case 2) Dummy data
-	data.unk0 = (void *)0x61616161;
-	data.unk1 = (void *)0x62626262;
-	data.unk2 = (void *)0x63636363;
-	data.unk3 = (void *)0x64646464;
-	data.unk4 = (void *)0x65656565;
-	data.unk5 = (void *)0x66666666;
-	data.unk6 = malloc(0x20);		// some struct{ QWORD sizeof_filename;	unsigned __int16  address_filename; } // address_filename - C.:.\.U.s.e.r.s.\.b.k.-.v.m.w.a.r.e.\.D.e.s.k.t.o.p.\.c.a.l.l._.a.h.c.a.c.h.e...e.x.e...
-	memset(data.unk6, 0x31, 0x20);
-	data.unk7 = (void *)strlen((char *)data.unk6);
-	data.unk8 = (void *)0x69696969;
-	data.unk9 = (void *)0x6a6a6a6a;
-	data.unk10 = (void *)0x6b6b6b6b;
-	data.unk11 = (void *)0x6c6c6c6c;
-	data.unk12 = (void *)0x6d6d6d6d;
-	data.unk13 = (void *)0x6e6e6e6e;
-	data.unk14 = (void *)0x6f6f6f6f;
-	data.unk15 = (void *)0x70707070;
-	data.unk16 = (void *)0x71717171;
-	data.unk17 = (void *)0x72727272;
-	data.unk18 = (void *)0x73737373;
-	data.unk19 = (void *)0x74747474;
-	data.unk20 = (void *)0x75757575;
-	data.unk21 = (void *)0x76767676;
-	data.unk22 = (void *)0x77777777;
-	data.unk23 = (void *)0x78787878;
-	data.unk24 = (void *)0x79797979;
-	data.unk25 = (void *)0x7a7a7a7a;
-	data.unk26 = (void *)0x7b7b7b7b;
-	data.unk27 = (void *)0x7c7c7c7c;
-	data.unk28 = (void *)0x7d7d7d7d;
-	// use in ahcache!AhcApiLookupCdb()
-	data.unk29 = (void *)0x7e7e7e7e;
-	data.unk30 = (void *)0x7f7f7f7f;
-	data.unk31 = (void *)0x80808080L;
-	data.unk32 = (void *)0x81818181L;
-	data.unk33 = (void *)0x82828282L;
-	data.unk34 = (void *)0x83838383L;
-	data.unk35 = (void *)0x84848484L;
-	data.unk36 = (void *)0x85858585L;
-	data.unk37 = (void *)0x86868686L;
-	data.unk38 = (void *)0x87878787L;	// input+0x170, type: void *
-	data.unk39 = (void *)0x88888888L;
-	data.unk40 = (void *)0x89898989L;
-		
-	// use in ahcache!AhcApiInitProcessData()
-	data.unk41 = (void *)0x8a8a8a8aL;	// unknown. It is not NULL
-	data.unk42 = (void *)0x8b8b8b8bL;	// base_addr ( addr & 3 == 0x0 // ³¡ÀÚ¸®°¡ 0,4,8,c¿©¾ß ÇÔ) -> ¾Æ¸¶µµ ShimData¸¦ ´ã°íÀÖ´Â ±¸Á¶Ã¼ÀÇ ÁÖ¼ÒÀÏµí
-	data.unk43 = (void *)0xc0;	// size > 0x1cc0	
-
-	// set return buffer
-	switch (_AppHelpCacheCmd) {
-	case 0x0:	// AhcApiLookup();
-		break;
-	case 0x1:	// AhcApiRemove();
-		break;
-	case 0x2:	// AhcApiUpdate();
-		break;
-	case 0x3:	// AhcApiClear(); need admin auth
-		break;
-	case 0x4:	// AhcApiSnapStatistics(); need admin auth
-		ret_size = 0x34;
-		data.Kernel_to_user = malloc(ret_size);// output memory
-		data.szKernel_to_user = (void *)ret_size;	// size of output memory
-		break;
-	case 0x5:	// AhcApiSnapCache();	need admin auth
-		break;
-	case 0x6:	// AhcApiLookupCdb();
-		ret_size = 4;
-		data.Kernel_to_user = malloc(ret_size);// output memory
-		data.szKernel_to_user = (void *)ret_size;	// size of output memory
-		break;
-	case 0x7:	// AhcCdbRefresh();
-		break;
-	case 0x8:
-		// AhcApiMapQuirks(); - success! Quirks mode
-		// input: None
-		// output: data.Kernel_to_user(°øÀ¯¸Þ¸ð¸®ÁÖ¼ÒÀÇ base address) - return from ZwMapViewOfSection()
-		ret_size = 8;
-		data.Kernel_to_user = (void *)0x00007ffffff0000;//malloc(ret_size);// output memory
-		data.szKernel_to_user = (void *)ret_size;	// size of output memory
-		break;
-	case 0x9:	// AhcApiMapQuirks();
-		break;
-	case 0xa:	// AhcApiInitProcessData();
-		break;
-	case 0xb:	// AhcApiLookupAndWriteToProcess();
-		break;
-	}
-	data.unk44 = (void *)0x8d8d8d8dL;
-	*/
 	DWORD dwRet = 0;
 	NTSTATUS status = -1;
 	IO_STATUS_BLOCK IoStatusBlock;
@@ -288,7 +189,7 @@ NTSTATUS _DeviceIoControlFile(HANDLE hProc)
 			NULL,
 			NULL,
 			&IoStatusBlock,
-			CTL_CODE(FILE_DEVICE_UNKNOWN, _AppHelpCacheCmd, METHOD_NEITHER, FILE_ANY_ACCESS),	// 4 * a1 | 0x220003  -> [000000100010][00][000000000000][11] ; ntokrnl.exe¿¡¼­ NtApphelpCacheControl() Âü°í
+			CTL_CODE(FILE_DEVICE_UNKNOWN, _AppHelpCacheCmd, METHOD_NEITHER, FILE_ANY_ACCESS),	// 4 * a1 | 0x220003  -> [000000100010][00][000000000000][11] ; ntokrnl.exeì—ì„œ NtApphelpCacheControl() ì°¸ê³ 
 																							// https://ezbeat.tistory.com/286 :: ([DEVICE_TYPE][ACCESS][FUNCTION][METHOD])
 			data,
 			sizeof(ApphelpCacheControlData),
@@ -367,7 +268,7 @@ ApphelpCacheControlData *AhcApiInitProcessData()
 	shimData = (_ShimData *)malloc(sizeof(_ShimData));
 	shimData->dwMaxSize = 0x11C0;
 	shimData->dwMagic = SHIMDATA_MAGIC;
-	data.unk42 = shimData;			// base_addr ( addr & 3 == 0x0 // ³¡ÀÚ¸®°¡ 0,4,8,c¿©¾ß ÇÔ) -> ¾Æ¸¶µµ ShimData¸¦ ´ã°íÀÖ´Â ±¸Á¶Ã¼ÀÇ ÁÖ¼ÒÀÏµí
+	data.unk42 = shimData;			// base_addr ( addr & 3 == 0x0 // ëìžë¦¬ê°€ 0,4,8,cì—¬ì•¼ í•¨) -> ì•„ë§ˆë„ ShimDataë¥¼ ë‹´ê³ ìžˆëŠ” êµ¬ì¡°ì²´ì˜ ì£¼ì†Œì¼ë“¯
 	data.unk43 = (PVOID)0x1cd0;		// size > 0x1cc0	
 	/////////////////////////
 
