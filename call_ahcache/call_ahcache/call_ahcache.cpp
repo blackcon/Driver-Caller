@@ -189,8 +189,7 @@ NTSTATUS _DeviceIoControlFile(HANDLE hProc)
 			NULL,
 			NULL,
 			&IoStatusBlock,
-			CTL_CODE(FILE_DEVICE_UNKNOWN, _AppHelpCacheCmd, METHOD_NEITHER, FILE_ANY_ACCESS),	// 4 * a1 | 0x220003  -> [000000100010][00][000000000000][11] ; ntokrnl.exe에서 NtApphelpCacheControl() 참고
-																							// https://ezbeat.tistory.com/286 :: ([DEVICE_TYPE][ACCESS][FUNCTION][METHOD])
+			CTL_CODE(FILE_DEVICE_UNKNOWN, _AppHelpCacheCmd, METHOD_NEITHER, FILE_ANY_ACCESS),
 			data,
 			sizeof(ApphelpCacheControlData),
 			NULL,
